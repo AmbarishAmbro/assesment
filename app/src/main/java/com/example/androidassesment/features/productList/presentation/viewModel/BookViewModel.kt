@@ -28,7 +28,20 @@ class BookViewModel :ViewModel() {
          viewModelScope.launch (Dispatchers.IO){
         var book_responce =  apiService.fetchBookList("https://apps.clickastro.com/test/products.php")
 
-             _bookFlow.value=listOf(Product.fromBP(book_responce.products.BP),(Product.fromED(book_responce.products.ED) ),(Product.fromCp(book_responce.products.CP)))
+             _bookFlow.value = listOf(
+                 Product.fromBP(book_responce.products.BP),
+                 (Product.fromED(book_responce.products.ED)),
+                 (Product.fromCp(book_responce.products.CP)),
+                 (Product.fromGm(book_responce.products.GM)),
+                 (Product.fromLi(book_responce.products.LI)),
+                 (Product.fromMp(book_responce.products.MP)),
+                 (Product.fromMr(book_responce.products.MR)),
+                 (Product.fromWl(book_responce.products.WL)),
+                 (Product.fromPcol(book_responce.products.PCOL)),
+                 (Product.fromPpol(book_responce.products.PPOL)),
+                 (Product.fromYg(book_responce.products.YG))
+             )
+
 
 
 
