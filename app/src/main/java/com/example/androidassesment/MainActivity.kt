@@ -1,12 +1,11 @@
 package com.example.androidassesment
 
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,11 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.androidassesment.features.productList.presentation.component.ProductListItem
+import com.example.androidassesment.features.productList.presentation.nav.Nav
 import com.example.androidassesment.features.productList.presentation.viewModel.BookViewModel
 import com.example.androidassesment.ui.theme.AndroidAssesmentTheme
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class MainActivity : ComponentActivity() {
     private val viewModel: BookViewModel by viewModels()
@@ -37,15 +39,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AndroidAssesmentTheme {
+
                 // A surface container using the 'background' color from the theme
-                Scaffold(topBar = {TopAppBar(title = { Text(text = "Book List") })}) {
+                Scaffold(topBar = {TopAppBar(title = { Text(text = "Book Bazaar") })}) {
                     Surface(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(it),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        BookItem(viewModel)
+
+                   Nav()
 
                     }
                 }
@@ -58,8 +62,10 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun BookItem(viewModel: BookViewModel) {
+fun BookItem(navController: NavHostController) {
+    val viewModel:BookViewModel = BookViewModel()
     val book by viewModel.bookFlow.collectAsState()
+
 
     Column(
         modifier = Modifier
@@ -71,12 +77,21 @@ fun BookItem(viewModel: BookViewModel) {
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             items(book?.size?:0) {
+                val currentBook = book?.getOrNull(it)
                 ProductListItem(
                     image = book.getOrNull(it)?.imagePath?.square,
                     productTitle = book.getOrNull(it)?.name,
                     price = book.getOrNull(it)?.price,
                     languageCount = book.getOrNull(it)?.availableLanguages?.size,
-                    discount = book.getOrNull(it)?.discount,
+                    discount = book.getOrNull(it)?.discount, onItemClick = {
+                        val imageUrl = Uri.encode(currentBook?.imagePath?.square.orEmpty())
+                        val productTitle = Uri.encode(currentBook?.name.orEmpty())
+                        val price = currentBook?.price ?: 0
+                        val description = Uri.encode(currentBook?.description.orEmpty())
+                        val discount = currentBook?.discount ?: 0
+                        val route = "ProductDetails?image=$imageUrl&productTitle=$productTitle&price=$price&description=$description&discount=$discount"
+                        navController.navigate(route)
+                    }
                 )
             }
         }
